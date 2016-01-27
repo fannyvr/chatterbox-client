@@ -26,13 +26,7 @@ $(document).ready(function() {
           }
         }
       });
-      $('#messageSubmit').on('submit', function(e){
-        e.preventDefault();
-        var text = $('#message').val();
-        var finalMessage = createMessage(text);
-        app.send(finalMessage);
-        app.fetch();
-      });
+      app.handleSubmit();
     
     },
     send: function(message){
@@ -63,6 +57,7 @@ $(document).ready(function() {
           contentType: 'application/json',
           success:  function(data) {
             dataHandler(data);
+            app.populate(data);
             app.recievedData = data.results;
             // app.recievedData = (data.results).slice(0, 99);
             // (app.recievedData).push(data.results);
@@ -79,27 +74,62 @@ $(document).ready(function() {
         $('.messageContainer').empty()
       },
 
-      addRoom : function(rooms){
+      addRoom : function(roomname){
         // Append new roons to dropdown only
-        for(var key in rooms){
-          $('#roomSelect').append('<option value= "' + key + '">' + key + '</option>');
+        // for(var key in rooms){
+        //   $('#roomSelect').append('<option value= "' + key + '">' + key + '</option>');
+        // }
+        // New:
+        var option = $('<option/>').val(roomname).text(roomname);
+        $('#roomSelect').append(option);
+      },
+
+      populate: function(data) {
+        $('#roomSelect').html('<option value= "newRoom"> New Room...</option> <option value="lobby" selected> lobby</option>');
+        var results = data.results;
+        if(results){
+          var rooms = {};
+          results.forEach(function(data){
+            var roomname = data.roomname;
+            if(roomname && !rooms[roomname]){
+              app.addRoom(roomname);
+            }
+            rooms[roomname] = true;
+          });
         }
+        $('.roomSelect').val(app.roomname);
       },
 
       addMessage : function(message){
         user = message.username;
         text = message.text;  
-        var newDiv = $('<div class="message"></div>');
-        var fullMessage = user + ':\n' + text;
-        newDiv.text(fullMessage);
+        
+        var userSpan = $('<span class="username"/>');
+        var newDiv = $('<div class="message"/>');
+        userSpan.text(user).attr('message.username', message.username).appendTo(newDiv);        
+        var fullMessage = ':\n' + text;
+        newDiv.append(fullMessage);
         $('.messageContainer').append(newDiv);
+      },
+
+      handleSubmit : function() {
+        $('#messageSubmit').on('submit', function(e){
+          e.preventDefault();
+          var text = $('#message').val();
+          var finalMessage = createMessage(text);
+          app.send(finalMessage);
+          app.fetch();
+        });
+      },
+
+      addFriend : function(){
+
       }
   };
 
   
 
   var dataHandler = function (data){ 
-    $('#roomSelect').html('<option value= "newRoom"> New Room...</option> <option value="lobby" selected> lobby</option>');
     // var rooms = {};
     for(var i = 0; i < data.results.length; i++){
         app.addMessage(data.results[i]);
@@ -108,14 +138,17 @@ $(document).ready(function() {
       // User can add room 
       
       //console.log(data.results[i].roomname);
-      if(!rooms[data.results[i].roomname] ){
-        //console.log(data.results[i].roomname)
-        rooms[data.results[i].roomname] = data.results[i].roomname;
+      // if(!rooms[data.results[i].roomname] ){
+      //   //console.log(data.results[i].roomname)
+      //   rooms[data.results[i].roomname] = data.results[i].roomname;
+      // }
+      // ReWRIte:
 
-      }
+
+
     }
       
-    app.addRoom(rooms);
+    //app.addRoom(roomname);
     
   };
 
@@ -135,13 +168,9 @@ $(document).ready(function() {
   
   
 
-  var addFriend = function(){
+  
 
-  };
-
-  var handleSubmit = function() {
-
-  };
+  
  
 });
 
