@@ -27,6 +27,7 @@ $(document).ready(function() {
         }
       });
       app.handleSubmit();
+      app.addFriend();
     
     },
     send: function(message){
@@ -123,7 +124,15 @@ $(document).ready(function() {
       },
 
       addFriend : function(){
+        $('.username').on('click', function(){
+          var friend = $('.message.username').val();
 
+          //var friend = $('.username').find('.username').val();
+          console.log(friend);
+          // var finalMessage = createMessage(text);
+          // app.send(finalMessage);
+          // app.fetch();
+        });
       }
   };
 
